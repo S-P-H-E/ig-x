@@ -5,7 +5,7 @@ import { db } from "./drizzle";
 import * as schema from "./drizzle/schema/auth"
 
 export const auth = betterAuth({
-    baseURL: env.BASE_URL,
+    baseURL: env.NEXT_PUBLIC_BASE_URL,
     user: {
       additionalFields: {
         onboarding: {
