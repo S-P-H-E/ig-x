@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "auth:generate": "pnpm dlx @better-auth/cli@latest generate --output lib/drizzle/schema/auth.ts --yes"
+    "auth:generate": "pnpm dlx @better-auth/cli@latest generate --output lib/drizzle/schema/auth.ts --yes",
+    "deploy:trigger": "trigger deploy"
   },
   "dependencies": {
     "@elysiajs/eden": "^1.4.6",
