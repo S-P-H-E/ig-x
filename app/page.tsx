@@ -1,17 +1,22 @@
 import { authClient } from "@/lib/auth-client";
 import { db } from "@/lib/drizzle";
 import { workflows } from "@/lib/drizzle/schema";
-import { api } from "@/lib/eden";
 import clsx from "clsx";
 import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AiOutlinePlus, AiOutlineClockCircle, AiOutlinePlayCircle, AiOutlinePause, AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
+import {
+  AiOutlinePlus,
+  AiOutlineClockCircle,
+  AiOutlinePlayCircle,
+  AiOutlinePause,
+  AiOutlineCheckCircle,
+  AiOutlineCloseCircle,
+} from "react-icons/ai";
 
 export default async function Home() {
   const data = await db.select().from(workflows);
-  const res = await api.get();
 
   const session = await authClient.getSession({
     fetchOptions: {
@@ -40,7 +45,6 @@ export default async function Home() {
       <div className="flex justify-between w-full">
         <Link href="/">
           <h1 className="text-3xl font-semibold">ig-x</h1>
-          <p>{res.data}</p>
         </Link>
         <div className="flex gap-4 items-center">
           <Link href="/workflow/new" className="flex gap-2 items-center bg-(--foreground) text-(--background) px-4 py-2 rounded-xl">
