@@ -14,7 +14,6 @@ export const app = new Elysia({ prefix: '/api' })
         return "Method Not Allowed";
     })
     .post('/createWorkflow', async ({ body, request }) => {
-      // Add user authentication check here
       const session = await auth.api.getSession({ headers: request.headers });
       if (!session?.user) {
         throw new Error("Unauthorized");
@@ -22,16 +21,18 @@ export const app = new Elysia({ prefix: '/api' })
       
       const { title, template, usernames } = body;
       const slug = title.toLowerCase().replace(/ /g, '-') + '-' + Date.now();
+      
+      const [workflow] = await db.insert(workflows).values({
+        title,
+        template,
+        usernames,
+        slug
+      }).returning();
         
-        return {
-          message: "Workflow Creation Success",
-          data
-        }
-      } catch (error) {
-        return {
-          message: `Workflow Creation Failed: ${error}`
-        }
-      }
+      return {
+        message: "Workflow Creation Success",
+        data: workflow
+      };
     }, {
       body: t.Object({
         title: t.String(),
