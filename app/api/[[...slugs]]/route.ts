@@ -21,7 +21,7 @@ export const app = new Elysia({ prefix: '/api' })
       }
       
       const { title, template, usernames } = body;
-      const slug = title.toLowerCase().replace(/ /g, '-');
+      const slug = title.toLowerCase().replace(/ /g, '-') + '-' + Date.now();
         
         return {
           message: "Workflow Creation Success",
