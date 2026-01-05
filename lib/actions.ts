@@ -133,15 +133,19 @@ export async function cancelWorkflow(slug: string) {
     const currentRuns = workflow.runs || [];
 
     // Cancel all pending runs
-    for (const run of currentRuns) {
         if (run.status === "pending") {
             try {
                 await runs.cancel(run.runId);
-                run.status = "cancelled";
             } catch (error) {
                 console.error(`Failed to cancel run ${run.runId}:`, error);
             }
         }
+    }
+
+    // Update all pending runs to cancelled status
+    const updatedRuns = currentRuns.map(run => 
+        run.status === "pending" ? { ...run, status: "cancelled" as const } : run
+    );
     }
 
     // Update workflow status to canceled
