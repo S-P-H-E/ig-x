@@ -6,7 +6,6 @@ export const workflows = pgTable("workflows", {
 	id: uuid().primaryKey().defaultRandom(),
 	created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	title: text().notNull(),
-	description: text().notNull(),
 	status: workflowStatus("status").default("idle").notNull(),
 	usernames: jsonb().$type<string[]>().notNull(),
 	template: text().notNull(),

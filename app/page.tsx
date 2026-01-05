@@ -55,7 +55,6 @@ export default async function Home() {
               </div>
 
               <h1>{w.title}</h1>
-              <p className="text-(--description)">{w.description}</p>
             </Link>
           );
         })}
