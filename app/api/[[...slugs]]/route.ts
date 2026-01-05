@@ -13,12 +13,15 @@ export const app = new Elysia({ prefix: '/api' })
         set.status = 405;
         return "Method Not Allowed";
     })
-    .post('/createWorkflow', async ({ body }) => {
+    .post('/createWorkflow', async ({ body, request }) => {
+      // Add user authentication check here
+      const session = await auth.api.getSession({ headers: request.headers });
+      if (!session?.user) {
+        throw new Error("Unauthorized");
+      }
+      
       const { title, template, usernames } = body;
       const slug = title.toLowerCase().replace(/ /g, '-');
-
-      try {
-        const [data] = await db.insert(workflows).values({ title, template, usernames, slug }).returning();
         
         return {
           message: "Workflow Creation Success",
