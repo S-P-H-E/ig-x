@@ -1,21 +1,27 @@
 import { schemaTask, task } from "@trigger.dev/sdk";
 import z from "zod"
 import { api } from "../eden";
-import { getUser } from "../session";
+
+const loginSchema = z.object({
+  username: z.string(),
+  encryptedPassword: z.string()
+});
 
 export const sendDM = schemaTask({
   id: "send-dm",
   description: "This task sends the generated DM to the instagram profile.",
   schema: z.object({
     username: z.string(),
-    template: z.string()
+    template: z.string(),
+    login: loginSchema
   }),
-  run: async ({ username, template }) => {
-    const user = await getUser();
+  run: async ({ username, template, login }) => {
     const data = await api.beginWorkflow.post({
-      username, template, login: {
-        username: user.instaUsername,
-        encryptedPassword: user.instaPassword
+      username,
+      template,
+      login: {
+        username: login.username,
+        encryptedPassword: login.encryptedPassword
       }
     })
 
@@ -23,20 +29,27 @@ export const sendDM = schemaTask({
   }
 })
 
+interface OutreachPayload {
+  username: string;
+  template: string;
+  login: {
+    username: string;
+    encryptedPassword: string;
+  };
+}
+
 export const outreach = task({
   id: "outreach",
   queue: {
     concurrencyLimit: 1
   },
-  run: async (payload: { username: string, template: string }) => {
-    // Fetch username and message from payload
-    const username = payload.username
-    const template = payload.template
+  run: async (payload: OutreachPayload) => {
+    const { username, template, login } = payload;
 
     // Send DM
-    const { data } = await sendDM.triggerAndWait({ username, template }).unwrap()
+    const { data } = await sendDM.triggerAndWait({ username, template, login }).unwrap()
 
-    return { 
+    return {
       message: `${username}'s DM workflow has been completed!`,
       data
     }

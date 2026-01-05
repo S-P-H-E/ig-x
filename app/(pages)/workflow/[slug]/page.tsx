@@ -6,10 +6,10 @@ import { notFound } from "next/navigation";
 import {
   AiOutlineClockCircle,
   AiOutlinePlayCircle,
-  AiOutlinePause,
   AiOutlineCheckCircle,
   AiOutlineCloseCircle,
 } from "react-icons/ai";
+import WorkflowControls from "@/components/start-workflow-button";
 
 export default async function WorkflowPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -28,7 +28,6 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
   const statusConfig = {
     idle: { label: "Idle", icon: AiOutlineClockCircle, color: "text-(--description)" },
     running: { label: "Running", icon: AiOutlinePlayCircle, color: "text-emerald-500" },
-    paused: { label: "Paused", icon: AiOutlinePause, color: "text-amber-500" },
     completed: { label: "Completed", icon: AiOutlineCheckCircle, color: "text-blue-500" },
     canceled: { label: "Canceled", icon: AiOutlineCloseCircle, color: "text-red-500" },
   };
@@ -51,11 +50,8 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
       <div className="mt-10 flex items-start justify-between gap-6">
         <div>
           <h1 className="text-3xl font-semibold">{workflow.title}</h1>
-          <p className="mt-2 text-(--description)">{workflow.description}</p>
         </div>
-        <button className="cursor-pointer rounded-xl bg-(--foreground) px-6 py-3 font-medium text-(--background) transition-opacity hover:opacity-80 active:scale-95">
-          Start Workflow
-        </button>
+        <WorkflowControls slug={slug} status={workflow.status} />
       </div>
 
       <div className="mt-10">

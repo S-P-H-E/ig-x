@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth';
-import { decrypt, key } from '@/lib/crypto';
+import { decrypt } from '@/lib/crypto';
 import { db } from '@/lib/drizzle';
 import { workflows } from '@/lib/drizzle/schema';
 import { Elysia, t } from 'elysia'
@@ -38,9 +38,9 @@ export const app = new Elysia({ prefix: '/api' })
     })
     .post('/beginWorkflow', async ({ body }) => {
       const { username, template, login } = body;
-      const password = decrypt(login.encryptedPassword, key);
+      const password = decrypt(login.encryptedPassword);
 
-      console.log(`Username: ${username}, Password: ${password}`)
+      // Password decrypted successfully
 
       return { success: true }
     },{
