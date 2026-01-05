@@ -40,7 +40,7 @@ export const app = new Elysia({ prefix: '/api' })
       const { username, template, login } = body;
       const password = decrypt(login.encryptedPassword);
 
-      console.log(`Username: ${username}, Password: ${password}`)
+      // Password decrypted successfully
 
       return { success: true }
     },{
