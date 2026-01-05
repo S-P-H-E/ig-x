@@ -11,6 +11,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  if (session.user.onboarding === false) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
   return NextResponse.next();
 }
 
