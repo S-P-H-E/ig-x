@@ -8,7 +8,6 @@ import {
   AiOutlinePlus,
   AiOutlineClockCircle,
   AiOutlinePlayCircle,
-  AiOutlinePause,
   AiOutlineCheckCircle,
   AiOutlineCloseCircle,
 } from "react-icons/ai";
@@ -20,7 +19,6 @@ export default async function Home() {
   const statusConfig = {
     idle: { label: "Idle", icon: AiOutlineClockCircle, color: "text-(--description)" },
     running: { label: "Running", icon: AiOutlinePlayCircle, color: "text-emerald-500" },
-    paused: { label: "Paused", icon: AiOutlinePause, color: "text-amber-500" },
     completed: { label: "Completed", icon: AiOutlineCheckCircle, color: "text-blue-500" },
     canceled: { label: "Canceled", icon: AiOutlineCloseCircle, color: "text-red-500" },
   };
