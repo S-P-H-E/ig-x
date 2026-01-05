@@ -25,9 +25,7 @@ export async function sendDMs({usernames, template, login}: {usernames: string[]
 
     const results: WorkflowRun[] = []
 
-    for (const username of usernames) {
-        const i = usernames.indexOf(username)
-
+    for (const [i, username] of usernames.entries()) {
         const delay = getNextFutureDate(3, 7)
 
         console.log(`Run ${i}: Delay until ${delay}.`)
@@ -56,13 +54,25 @@ export async function createWorkflowAction(formData: FormData) {
     const title = formData.get("title")?.toString() || ""
     const template = formData.get("template")?.toString() || ""
     const usernamesJson = formData.get("usernames")?.toString() || ""
-    const usernames: string[] = usernamesJson ? JSON.parse(usernamesJson) : []
+    
+    let usernames: string[] = [];
+    if (usernamesJson) {
+        try {
+            usernames = JSON.parse(usernamesJson);
+        } catch {
+            // Invalid JSON, usernames will remain empty array
+        }
+    }
 
     const { data: workflowData } = await api.createWorkflow.post({
         title, template, usernames
     })
 
-    redirect(`/workflow/${workflowData?.data?.slug}`)
+    if (!workflowData?.data?.slug) {
+        return { success: false, error: "Failed to create workflow" };
+    }
+
+    redirect(`/workflow/${workflowData.data.slug}`)
 }
 
 export async function startWorkflow(slug: string) {
@@ -103,6 +113,10 @@ export async function startWorkflow(slug: string) {
         login: instagramAccount
     });
 
+    if (workflowRuns.length === 0) {
+        return { success: false, error: "Failed to start any tasks" };
+    }
+
     // Update workflow status to running and store run IDs
     await db
         .update(workflows)
@@ -133,6 +147,7 @@ export async function cancelWorkflow(slug: string) {
     const currentRuns = workflow.runs || [];
 
     // Cancel all pending runs
+    for (const run of currentRuns) {
         if (run.status === "pending") {
             try {
                 await runs.cancel(run.runId);
@@ -146,14 +161,13 @@ export async function cancelWorkflow(slug: string) {
     const updatedRuns = currentRuns.map(run => 
         run.status === "pending" ? { ...run, status: "cancelled" as const } : run
     );
-    }
 
     // Update workflow status to canceled
     await db
         .update(workflows)
         .set({
             status: "canceled",
-            runs: currentRuns
+            runs: updatedRuns
         })
         .where(eq(workflows.slug, slug));
 
