@@ -1,5 +1,6 @@
 import { db } from "@/lib/drizzle";
 import { workflows } from "@/lib/drizzle/schema";
+import { desc } from "drizzle-orm";
 import { getUser } from "@/lib/session";
 import clsx from "clsx";
 import Image from "next/image";
@@ -13,7 +14,7 @@ import {
 } from "react-icons/ai";
 
 export default async function Home() {
-  const data = await db.select().from(workflows);
+  const data = await db.select().from(workflows).orderBy(desc(workflows.created_at));
   const user = await getUser();
 
   const statusConfig = {
@@ -40,19 +41,29 @@ export default async function Home() {
       </div>
 
       {/* Dashboard */}
-      <div className="pt-10">
-        {data?.map(w => {
+      <div className="pt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {data?.map((w) => {
           const status = statusConfig[w.status];
           const StatusIcon = status.icon;
 
           return (
-            <Link href={`/workflow/${w.slug}`} key={w.id} className="w-fit rounded-xl border border-(--border) p-6 inline-block">
-              <div className={clsx("flex gap-2 items-center pb-4", status.color)}>
-                <StatusIcon className={status.color} />
-                <p>{status.label}</p>
+            <Link href={`/workflow/${w.slug}`} key={w.id} className="group flex h-full flex-col justify-between rounded-2xl border border-(--border) bg-(--background) p-6 transition hover:border-(--foreground)/40">
+              <div>
+                <div className={clsx("inline-flex items-center gap-2 rounded-full bg-(--foreground)/5 px-3 py-1 text-xs font-medium", status.color)}>
+                  <StatusIcon className={status.color} />
+                  <p>{status.label}</p>
+                </div>
+                <h1 className="mt-4 text-lg font-semibold">{w.title}</h1>
+                {w.template && (
+                  <p className="mt-3 text-sm text-(--description) max-h-20 overflow-hidden">
+                    {w.template}
+                  </p>
+                )}
               </div>
-
-              <h1>{w.title}</h1>
+              <div className="mt-6 flex items-center justify-between text-sm text-(--description)">
+                <span>View workflow</span>
+                <span className="transition group-hover:translate-x-0.5 group-hover:text-(--foreground)">→</span>
+              </div>
             </Link>
           );
         })}

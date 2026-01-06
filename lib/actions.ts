@@ -46,28 +46,42 @@ export async function sendDMs({ userId, usernames, template }: { userId: string;
 }
 
 export async function createWorkflowAction(formData: FormData) {
+    // Check authentication
+    const currentUser = await getUser();
+    if (!currentUser) {
+        return { success: false, error: "You must be logged in to create a workflow" };
+    }
+
     const title = formData.get("title")?.toString() || ""
     const template = formData.get("template")?.toString() || ""
     const usernamesJson = formData.get("usernames")?.toString() || ""
     
+    // Validate dropzone/CSV file
     let usernames: string[] = [];
-    if (usernamesJson) {
-        try {
-            usernames = JSON.parse(usernamesJson);
-        } catch {
-            // Invalid JSON, usernames will remain empty array
-        }
+    if (!usernamesJson) {
+        return { success: false, error: "Please upload a CSV file with usernames" };
+    }
+    
+    usernames = JSON.parse(usernamesJson);
+    if (!Array.isArray(usernames) || usernames.length === 0) {
+        return { success: false, error: "Please upload a CSV file with usernames" };
     }
 
-    const { data: workflowData } = await api.createWorkflow.post({
-        title, template, usernames
-    })
+    // Create workflow directly in database
+    const slug = title.toLowerCase().replace(/ /g, '-') + '-' + Date.now();
+    
+    const [workflow] = await db.insert(workflows).values({
+        title,
+        template,
+        usernames,
+        slug
+    }).returning();
 
-    if (!workflowData?.data?.slug) {
+    if (!workflow?.slug) {
         return { success: false, error: "Failed to create workflow" };
     }
 
-    redirect(`/workflow/${workflowData.data.slug}`)
+    redirect(`/workflow/${workflow.slug}`)
 }
 
 export async function startWorkflow(slug: string) {

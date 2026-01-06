@@ -12,6 +12,7 @@ export default function New() {
     const [selectedFileSize, setSelectedFileSize] = useState<string | null>(null)
     const [usernames, setUsernames] = useState<string[]>([])
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const handleDropChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length !== 1) return
@@ -19,6 +20,7 @@ export default function New() {
         if (!file) return
         setSelectedFileName(file.name)
         setSelectedFileSize(file.size.toString())
+        setError(null)
     
         // Parse CSV client-side and extract username column
         Papa.parse(file, {
@@ -34,7 +36,14 @@ export default function New() {
     }
 
     async function handleCreate(formData: FormData){
-        await createWorkflowAction(formData)
+        setError(null);
+        setLoading(true);
+        const data = await createWorkflowAction(formData);
+        if (data && !data.success && data.error) {
+            setError(data.error);
+            setLoading(false);
+        }
+        // If successful, redirect happens in the action
     }
 
     return (
@@ -44,6 +53,11 @@ export default function New() {
                 <p className="text-(--description) text-sm text-center w-sm">This creates a new workflow and you will be navigated to a page where you can begin the workflow.</p>
 
                 <form action={handleCreate} onSubmit={() => setLoading(true)} className="flex flex-col items-center gap-2 w-full mt-4">
+                    {error && (
+                        <div className="w-full px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl">
+                            {error}
+                        </div>
+                    )}
                     <Dropzone onChange={handleDropChange} />
                     {selectedFileName && (
                         <div className="flex items-center justify-between border-2 border-(--border) px-4 py-2 rounded-2xl w-full">
@@ -60,12 +74,12 @@ export default function New() {
 
                     <div className="w-full mt-2 space-y-2">
                         <h1 className="font-semibold">Title</h1>
-                        <input type="text" name="title" className="outline-none px-4 py-2 border border-(--border) rounded-xl w-full" placeholder="Enter your workflow title"/>
+                        <input type="text" name="title" required onChange={() => setError(null)} className="outline-none px-4 py-2 border border-(--border) rounded-xl w-full" placeholder="Enter your workflow title"/>
                     </div>
 
                     <div className="w-full mt-2 space-y-2">
                         <h1 className="font-semibold">Template</h1>
-                        <input type="text" name="template" className="outline-none px-4 py-2 border border-(--border) rounded-xl w-full" placeholder="Enter your workflow template"/>
+                        <input type="text" name="template" required onChange={() => setError(null)} className="outline-none px-4 py-2 border border-(--border) rounded-xl w-full" placeholder="Enter your workflow template"/>
                     </div>
 
                     <div className="w-fit flex gap-4 ml-auto mt-4">

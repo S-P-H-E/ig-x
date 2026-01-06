@@ -16,10 +16,11 @@ export default function WorkflowControls({ slug, status }: WorkflowControlsProps
   const [error, setError] = useState<string | null>(null);
 
   const isRunning = status === "running";
-  const isFinished = status === "completed" || status === "canceled";
+  const isCompleted = status === "completed";
+  const isCanceled = status === "canceled";
 
   const handleStart = async () => {
-    if (isRunning || isFinished) return;
+    if (isRunning || isCompleted) return;
 
     setIsLoading("start");
     setError(null);
@@ -67,17 +68,19 @@ export default function WorkflowControls({ slug, status }: WorkflowControlsProps
       <div className="flex items-center gap-3">
         <button
           onClick={handleStart}
-          disabled={isRunning || isFinished || isLoading !== null}
+          disabled={isRunning || isCompleted || isLoading !== null}
           className={`cursor-pointer rounded-xl px-6 py-3 font-medium transition-opacity active:scale-95 ${
-            isRunning || isFinished
+            isRunning || isCompleted
               ? "cursor-not-allowed bg-(--foreground)/30 text-(--background)"
               : "bg-(--foreground) text-(--background) hover:opacity-80"
           } disabled:opacity-50`}
         >
           {isLoading === "start" ? (
             <PulseLoader color="white" size={6} />
-          ) : isFinished ? (
-            status === "completed" ? "Completed" : "Canceled"
+          ) : isCompleted ? (
+            "Completed"
+          ) : isCanceled ? (
+            "Restart"
           ) : (
             "Start Workflow"
           )}

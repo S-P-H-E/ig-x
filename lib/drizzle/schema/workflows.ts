@@ -5,7 +5,12 @@ export const workflowStatus = pgEnum("status", ["idle", "running", "canceled", "
 export type WorkflowRun = {
 	username: string;
 	runId: string;
-	status: "pending" | "completed" | "cancelled";
+	status: "pending" | "running" | "completed" | "cancelled" | "failed";
+	triggerStatus?: string;
+	createdAt?: string;
+	scheduledFor?: string;
+	startedAt?: string;
+	completedAt?: string;
 };
 
 export const workflows = pgTable("workflows", {
