@@ -13,6 +13,8 @@ export const user = pgTable("user", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
   onboarding: boolean("onboarding").default(false).notNull(),
+  instaUsername: text("insta_username"),
+  instaPassword: text("insta_password"),
 });
 
 export const session = pgTable(

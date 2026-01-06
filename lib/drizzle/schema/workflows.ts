@@ -1,16 +1,22 @@
 import { jsonb, pgTable, pgEnum, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const workflowStatus = pgEnum("status", ["idle", "running", "paused", "canceled", "completed"]);
+export const workflowStatus = pgEnum("status", ["idle", "running", "canceled", "completed"]);
+
+export type WorkflowRun = {
+	username: string;
+	runId: string;
+	status: "pending" | "completed" | "cancelled";
+};
 
 export const workflows = pgTable("workflows", {
 	id: uuid().primaryKey().defaultRandom(),
 	created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	title: text().notNull(),
-	description: text().notNull(),
 	status: workflowStatus("status").default("idle").notNull(),
 	usernames: jsonb().$type<string[]>().notNull(),
 	template: text().notNull(),
 	slug: text().notNull().unique(),
+	runs: jsonb().$type<WorkflowRun[]>().default([]),
 });
 
 export type Workflows = typeof workflows.$inferSelect;

@@ -1,7 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function Workflow() {
-  return (
-    <div>
-      <h1>Workflow</h1>
-    </div>
-  )
+  redirect("/workflow/new");
 }

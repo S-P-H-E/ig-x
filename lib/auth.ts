@@ -12,6 +12,14 @@ export const auth = betterAuth({
           type: "boolean",
           required: true,
           defaultValue: false,
+        },
+        instaUsername: {
+          type: "string",
+          required: false,
+        },
+        instaPassword: {
+          type: "string",
+          required: false,
         }
       }
     },
