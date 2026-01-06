@@ -40,9 +40,16 @@ export const app = new Elysia({ prefix: '/api' })
         usernames: t.Array(t.String())
       })
     })
-    .post('/beginWorkflow', async ({ body }) => {
+    .post('/beginWorkflow', async ({ body, request }) => {
+      const session = await auth.api.getSession({ headers: request.headers });
+      if (!session?.user) {
+        throw new Error("Unauthorized");
+      }
+
       const { username, template, login } = body;
       const password = decrypt(login.encryptedPassword);
+
+      console.log(username, password)
 
       // Password decrypted successfully
 

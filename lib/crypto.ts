@@ -24,6 +24,12 @@ export function encrypt(text: string): string {
 }
 
 export function decrypt(encryptedData: string): string {
+  const minLength = (IV_LENGTH + AUTH_TAG_LENGTH) * 2;
+  // ! Invalid or corrupted encrypted payload
+  if (!encryptedData || encryptedData.length < minLength || encryptedData.length % 2 !== 0) {
+    return "";
+  }
+
   const key = getEncryptionKey();
   const iv = Buffer.from(encryptedData.slice(0, IV_LENGTH * 2), 'hex');
   const authTag = Buffer.from(encryptedData.slice(IV_LENGTH * 2, (IV_LENGTH + AUTH_TAG_LENGTH) * 2), 'hex');

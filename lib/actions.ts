@@ -5,16 +5,11 @@ import { eq } from "drizzle-orm";
 import { db } from "./drizzle";
 import { workflows, user, type WorkflowRun } from "./drizzle/schema";
 import { outreach } from "./trigger/outreach";
-import { api } from "./eden";
 import { encrypt } from "./crypto";
+import { api } from "./eden";
 import { getUser } from "./session";
 
-interface InstagramLogin {
-    username: string;
-    encryptedPassword: string;
-}
-
-export async function sendDMs({usernames, template, login}: {usernames: string[], template: string, login: InstagramLogin}): Promise<WorkflowRun[]> {
+export async function sendDMs({ userId, usernames, template }: { userId: string; usernames: string[]; template: string }): Promise<WorkflowRun[]> {
     let cumulativeDelay = 0;
 
     function getNextFutureDate(min: number, max: number): Date {
@@ -33,7 +28,7 @@ export async function sendDMs({usernames, template, login}: {usernames: string[]
         try {
             const handle = await tasks.trigger<typeof outreach>(
                 "outreach",
-                { username, template, login },
+                { userId, username, template },
                 { delay }
             )
 
@@ -97,6 +92,8 @@ export async function startWorkflow(slug: string) {
         return { success: false, error: "No Instagram account connected. Please connect your account in Profile settings." };
     }
 
+    const currentUser = await getUser();
+
     // Get usernames from workflow
     const usernames: string[] = Array.isArray(workflow.usernames)
         ? workflow.usernames
@@ -108,9 +105,9 @@ export async function startWorkflow(slug: string) {
 
     // Trigger the DMs and get run information
     const workflowRuns = await sendDMs({
+        userId: currentUser.id,
         usernames,
-        template: workflow.template,
-        login: instagramAccount
+        template: workflow.template
     });
 
     if (workflowRuns.length === 0) {
