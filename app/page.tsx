@@ -47,7 +47,7 @@ export default async function Home() {
       {/* Dashboard */}
       {data.length === 0 ? (
         <div className="flex flex-1 items-center justify-center pt-32">
-          <p className="text-description">No workflows created yet</p>
+          <p className="text-muted-foreground">No workflows created yet</p>
         </div>
       ) : (
         <div className="pt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
