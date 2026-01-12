@@ -5,6 +5,13 @@ import { IoCheckmarkCircle } from "react-icons/io5";
 import { FaInstagram } from "react-icons/fa";
 import { PulseLoader } from "react-spinners";
 import { saveInstagramAccount, deleteInstagramAccount } from "@/lib/actions";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface InstagramSectionProps {
   initialAccount: { username: string } | null;
@@ -65,14 +72,14 @@ export default function InstagramSection({ initialAccount }: InstagramSectionPro
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold">Instagram Account</h2>
-            <p className="text-sm text-(--description)">
+            <p className="text-sm text-muted-foreground">
               Connect your Instagram account to send DMs
             </p>
           </div>
           <button
             onClick={handleAddAccount}
             disabled={!!account}
-            className={`rounded-xl border border-(--border) px-4 py-2 text-sm transition-opacity ${
+            className={`rounded-xl border border-border px-4 py-2 text-sm transition-opacity ${
               account
                 ? "cursor-not-allowed opacity-50"
                 : "cursor-pointer hover:opacity-70 active:scale-95"
@@ -83,7 +90,7 @@ export default function InstagramSection({ initialAccount }: InstagramSectionPro
         </div>
 
         {account && (
-          <div className="mt-4 flex items-center justify-between rounded-xl border border-(--border) p-4">
+          <div className="mt-4 flex items-center justify-between rounded-xl border border-border p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400">
                 <FaInstagram className="text-white" size={20} />
@@ -107,73 +114,80 @@ export default function InstagramSection({ initialAccount }: InstagramSectionPro
         )}
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-sm rounded-2xl bg-(--background) p-6 shadow-xl">
-            <div className="mb-4 flex items-center gap-3">
+      <Dialog open={showModal} onOpenChange={(open) => {
+        setShowModal(open);
+        if (!open) {
+          setUsername("");
+          setPassword("");
+          setError("");
+        }
+      }}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400">
                 <FaInstagram className="text-white" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Connect Instagram</h3>
-                <p className="text-sm text-(--description)">
+                <DialogTitle>Connect Instagram</DialogTitle>
+                <DialogDescription>
                   Enter your Instagram credentials
-                </p>
+                </DialogDescription>
               </div>
             </div>
+          </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium">Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="your_username"
-                  className="w-full rounded-xl border border-(--border) px-4 py-2 outline-none focus:border-(--foreground)"
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="your_username"
+                className="w-full rounded-xl border border-border px-4 py-2 outline-none focus:border-foreground"
+              />
+            </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-medium">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full rounded-xl border border-(--border) px-4 py-2 outline-none focus:border-(--foreground)"
-                />
-              </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full rounded-xl border border-border px-4 py-2 outline-none focus:border-foreground"
+              />
+            </div>
 
-              {error && (
-                <p className="text-sm text-red-500">{error}</p>
-              )}
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setUsername("");
-                    setPassword("");
-                    setError("");
-                  }}
-                  className="flex-1 cursor-pointer rounded-xl border border-(--border) py-2 transition-opacity hover:opacity-70"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="flex flex-1 cursor-pointer items-center justify-center rounded-xl bg-(--foreground) py-2 text-(--background) transition-opacity hover:opacity-90 disabled:opacity-50"
-                >
-                  {isPending ? <PulseLoader color="white" size={5} /> : "Connect"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowModal(false);
+                  setUsername("");
+                  setPassword("");
+                  setError("");
+                }}
+                className="flex-1 cursor-pointer rounded-xl border border-border py-2 transition-opacity hover:opacity-70"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="flex flex-1 cursor-pointer items-center justify-center rounded-xl bg-foreground py-2 text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {isPending ? <PulseLoader color="white" size={5} /> : "Connect"}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

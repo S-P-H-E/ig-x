@@ -1,4 +1,5 @@
 import { jsonb, pgTable, pgEnum, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { user } from "./auth";
 
 export const workflowStatus = pgEnum("status", ["idle", "running", "canceled", "completed"]);
 
@@ -22,6 +23,9 @@ export const workflows = pgTable("workflows", {
 	template: text().notNull(),
 	slug: text().notNull().unique(),
 	runs: jsonb().$type<WorkflowRun[]>().default([]),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
 });
 
 export type Workflows = typeof workflows.$inferSelect;

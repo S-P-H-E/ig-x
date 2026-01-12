@@ -154,11 +154,11 @@ export function WorkflowRunsClient({ slug, initialStatus, initialRuns }: Workflo
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium">Runs</h2>
-        <span className="text-sm text-(--description)">{runs.length} total</span>
+        <span className="text-sm text-muted-foreground">{runs.length} total</span>
       </div>
-      <div className="mt-4 max-h-80 overflow-y-auto rounded-xl border border-(--border) p-4">
+      <div className="mt-4 max-h-80 overflow-y-auto rounded-xl border border-border p-4">
         {runs.length === 0 ? (
-          <p className="text-(--description)">Runs will appear here once you start the workflow.</p>
+          <p className="text-muted-foreground">Runs will appear here once you start the workflow.</p>
         ) : (
           <div className="flex flex-col gap-3">
             {runs.map((run) => {
@@ -173,16 +173,16 @@ export function WorkflowRunsClient({ slug, initialStatus, initialRuns }: Workflo
                   ? "text-emerald-500"
                   : isCancelled
                     ? "text-red-500"
-                    : "text-(--description)";
+                    : "text-muted-foreground";
 
               return (
                 <div
                   key={run.runId}
-                  className="flex items-center justify-between rounded-lg bg-(--foreground)/5 px-3 py-2 text-sm"
+                  className="flex items-center justify-between rounded-lg bg-foreground/5 px-3 py-2 text-sm"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">@{run.username}</span>
-                    <span className="text-(--description)">Run ID: {run.runId}</span>
+                    <span className="text-muted-foreground">Run ID: {run.runId}</span>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className={statusColor}>{label}</span>
