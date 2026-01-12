@@ -58,7 +58,7 @@ export default async function Home() {
             return (
               <Link href={`/workflow/${w.slug}`} key={w.id} className="group flex h-full flex-col justify-between rounded-2xl border border-border bg-background p-6 transition hover:border-(--foreground)/40">
                 <div>
-                  <div className={clsx("inline-flex items-center gap-2 rounded-full bg-(--foreground)/5 px-3 py-1 text-xs font-medium", status.color)}>
+                  <div className={clsx("inline-flex items-center gap-2 rounded-full bg-foreground/5 px-3 py-1 text-xs font-medium", status.color)}>
                     <StatusIcon className={status.color} />
                     <p>{status.label}</p>
                   </div>
