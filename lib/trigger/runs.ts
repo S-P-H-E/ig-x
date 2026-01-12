@@ -47,10 +47,10 @@ export async function syncWorkflowRuns(slug: string): Promise<Workflows | null> 
       ...run,
       status: mappedStatus,
       triggerStatus: triggerRun.status,
-      createdAt: triggerRun.createdAt,
-      scheduledFor: triggerRun.scheduledAt,
-      startedAt: triggerRun.startedAt,
-      completedAt: triggerRun.completedAt,
+      createdAt: triggerRun.createdAt?.toISOString(),
+      scheduledFor: triggerRun.delayedUntil?.toISOString(),
+      startedAt: triggerRun.startedAt?.toISOString(),
+      completedAt: triggerRun.finishedAt?.toISOString(),
     });
   }
 

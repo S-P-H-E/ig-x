@@ -1,8 +1,9 @@
 import { db } from "@/lib/drizzle";
-import { workflows, type WorkflowRun } from "@/lib/drizzle/schema";
+import { workflows, user as userTable, type WorkflowRun } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getUser } from "@/lib/session";
 import {
   AiOutlineClockCircle,
   AiOutlinePlayCircle,
@@ -55,12 +56,24 @@ function getRunStatusLabel(run: WorkflowRun) {
 
 export default async function WorkflowPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const user = await getUser();
 
-  const [workflowRecord] = await db.select().from(workflows).where(eq(workflows.slug, slug));
+  const [result] = await db
+    .select({
+      workflow: workflows,
+      ownerEmail: userTable.email,
+    })
+    .from(workflows)
+    .leftJoin(userTable, eq(workflows.userId, userTable.id))
+    .where(eq(workflows.slug, slug));
 
-  if (!workflowRecord) {
+  if (!result) {
     notFound();
   }
+
+  const workflowRecord = result.workflow;
+  const ownerEmail = result.ownerEmail;
+  const canEdit = workflowRecord.userId === user.id;
 
   const workflow = (await syncWorkflowRuns(slug)) ?? workflowRecord;
 
@@ -72,7 +85,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
     : [];
 
   const statusConfig = {
-    idle: { label: "Idle", icon: AiOutlineClockCircle, color: "text-(--description)" },
+    idle: { label: "Idle", icon: AiOutlineClockCircle, color: "text-muted-foreground" },
     running: { label: "Running", icon: AiOutlinePlayCircle, color: "text-emerald-500" },
     completed: { label: "Completed", icon: AiOutlineCheckCircle, color: "text-blue-500" },
     canceled: { label: "Canceled", icon: AiOutlineCloseCircle, color: "text-red-500" },
@@ -84,7 +97,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col px-6 py-10">
       <div className="flex w-full items-center justify-between gap-4">
-        <Link href="/" className="text-(--description) hover:text-(--foreground)">
+        <Link href="/" className="text-muted-foreground hover:text-foreground">
           &larr; Back
         </Link>
         <div className={`flex items-center gap-2 ${status.color}`}>
@@ -96,14 +109,17 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
       <div className="mt-10 flex items-start justify-between gap-6">
         <div className="flex flex-1 flex-col gap-2">
           <h1 className="text-3xl font-semibold">{workflow.title}</h1>
-          <p className="text-sm text-(--description)">DM workflow for Instagram usernames listed below.</p>
+          <p className="text-sm text-muted-foreground">DM workflow for Instagram usernames listed below.</p>
+          {!canEdit && ownerEmail && (
+            <p className="text-sm text-muted-foreground">Created by: {ownerEmail}</p>
+          )}
         </div>
-        <WorkflowControls slug={slug} status={workflow.status} />
+        <WorkflowControls slug={slug} status={workflow.status} canEdit={canEdit} />
       </div>
 
       <div className="mt-10">
         <h2 className="text-lg font-medium">Template</h2>
-        <p className="mt-4 whitespace-pre-wrap rounded-xl border border-(--border) p-4 text-(--description)">
+        <p className="mt-4 whitespace-pre-wrap rounded-xl border border-border p-4 text-muted-foreground">
           {workflow.template}
         </p>
       </div>
@@ -112,17 +128,17 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
         <div>
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Usernames</h2>
-            <span className="text-sm text-(--description)">{usernames.length} total</span>
+            <span className="text-sm text-muted-foreground">{usernames.length} total</span>
           </div>
-          <div className="mt-4 max-h-60 overflow-y-auto rounded-xl border border-(--border) p-4">
+          <div className="mt-4 max-h-60 overflow-y-auto rounded-xl border border-border p-4">
             {usernames.length === 0 ? (
-              <p className="text-(--description)">No usernames found</p>
+              <p className="text-muted-foreground">No usernames found</p>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {usernames.map((username, index) => (
                   <span
                     key={`${username}-${index}`}
-                    className="rounded-lg bg-(--foreground)/10 px-3 py-1 text-sm"
+                    className="rounded-lg bg-foreground/10 px-3 py-1 text-sm"
                   >
                     @{username}
                   </span>

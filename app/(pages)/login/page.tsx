@@ -12,7 +12,7 @@ export default async function Login() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <h1 className="text-3xl font-semibold">Welcome to ig-x</h1>
-      <p className="mt-2 text-(--description)">Sign in to continue</p>
+      <p className="mt-2 text-muted-foreground">Sign in to continue</p>
       <div className="mt-8">
         <SignIn />
       </div>

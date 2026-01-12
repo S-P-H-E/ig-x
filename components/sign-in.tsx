@@ -13,7 +13,7 @@ export default function SignIn() {
   return (
     <button
       onClick={handleClick}
-      className="flex cursor-pointer items-center gap-3 rounded-xl bg-(--foreground) px-6 py-3 text-(--background) transition-opacity hover:opacity-80 active:scale-95"
+      className="flex cursor-pointer items-center gap-3 rounded-xl bg-foreground px-6 py-3 text-background transition-opacity hover:opacity-80 active:scale-95"
     >
       <FcGoogle className="text-xl" />
       <span className="font-medium">Continue with Google</span>
