@@ -26,7 +26,8 @@ export const app = new Elysia({ prefix: '/api' })
         title,
         template,
         usernames,
-        slug
+        slug,
+        userId: session.user.id
       }).returning();
         
       return {

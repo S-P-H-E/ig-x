@@ -69,12 +69,13 @@ export async function createWorkflowAction(formData: FormData) {
 
     // Create workflow directly in database
     const slug = title.toLowerCase().replace(/ /g, '-') + '-' + Date.now();
-    
+
     const [workflow] = await db.insert(workflows).values({
         title,
         template,
         usernames,
-        slug
+        slug,
+        userId: currentUser.id
     }).returning();
 
     if (!workflow?.slug) {
@@ -85,6 +86,11 @@ export async function createWorkflowAction(formData: FormData) {
 }
 
 export async function startWorkflow(slug: string) {
+    const currentUser = await getUser();
+    if (!currentUser) {
+        return { success: false, error: "You must be logged in" };
+    }
+
     // Get the workflow
     const [workflow] = await db
         .select()
@@ -93,6 +99,11 @@ export async function startWorkflow(slug: string) {
 
     if (!workflow) {
         return { success: false, error: "Workflow not found" };
+    }
+
+    // Verify ownership
+    if (workflow.userId !== currentUser.id) {
+        return { success: false, error: "You don't have permission to start this workflow" };
     }
 
     // Check if workflow is already running
@@ -105,8 +116,6 @@ export async function startWorkflow(slug: string) {
     if (!instagramAccount) {
         return { success: false, error: "No Instagram account connected. Please connect your account in Profile settings." };
     }
-
-    const currentUser = await getUser();
 
     // Get usernames from workflow
     const usernames: string[] = Array.isArray(workflow.usernames)
@@ -141,6 +150,11 @@ export async function startWorkflow(slug: string) {
 }
 
 export async function cancelWorkflow(slug: string) {
+    const currentUser = await getUser();
+    if (!currentUser) {
+        return { success: false, error: "You must be logged in" };
+    }
+
     // Get the workflow
     const [workflow] = await db
         .select()
@@ -149,6 +163,11 @@ export async function cancelWorkflow(slug: string) {
 
     if (!workflow) {
         return { success: false, error: "Workflow not found" };
+    }
+
+    // Verify ownership
+    if (workflow.userId !== currentUser.id) {
+        return { success: false, error: "You don't have permission to cancel this workflow" };
     }
 
     if (workflow.status !== "running") {
@@ -233,6 +252,49 @@ export async function deleteInstagramAccount() {
             instaPassword: null,
         })
         .where(eq(user.id, currentUser.id));
+
+    return { success: true };
+}
+
+export async function deleteWorkflowAction(slug: string) {
+    const currentUser = await getUser();
+    if (!currentUser) {
+        return { success: false, error: "You must be logged in to delete a workflow" };
+    }
+
+    // Get workflow and verify ownership
+    const [workflow] = await db
+        .select()
+        .from(workflows)
+        .where(eq(workflows.slug, slug));
+
+    if (!workflow) {
+        return { success: false, error: "Workflow not found" };
+    }
+
+    if (workflow.userId !== currentUser.id) {
+        return { success: false, error: "You don't have permission to delete this workflow" };
+    }
+
+    // Prevent deletion of running workflows
+    if (workflow.status === "running") {
+        return { success: false, error: "Cannot delete a running workflow. Please cancel it first." };
+    }
+
+    // Cancel any pending runs before deletion
+    const currentRuns = workflow.runs || [];
+    for (const run of currentRuns) {
+        if (run.status === "pending") {
+            try {
+                await runs.cancel(run.runId);
+            } catch (error) {
+                console.error(`Failed to cancel run ${run.runId}:`, error);
+            }
+        }
+    }
+
+    // Delete the workflow
+    await db.delete(workflows).where(eq(workflows.slug, slug));
 
     return { success: true };
 }

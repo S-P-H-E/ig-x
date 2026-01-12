@@ -12,7 +12,7 @@ export default async function Profile() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col p-15">
       <div className="flex w-full items-center justify-between">
-        <Link href="/" className="text-(--description) hover:text-(--foreground)">
+        <Link href="/" className="text-muted-foreground hover:text-foreground">
           &larr; Back
         </Link>
         <SignOut />
@@ -27,7 +27,7 @@ export default async function Profile() {
           className="rounded-full"
         />
         <h1 className="mt-6 text-2xl font-semibold">{user.name}</h1>
-        <p className="mt-2 text-(--description)">{user.email}</p>
+        <p className="mt-2 text-muted-foreground">{user.email}</p>
 
         <InstagramSection initialAccount={instagramAccount} />
       </div>
