@@ -4,7 +4,7 @@ export default function Dropzone({ onChange }: { onChange: (e: React.ChangeEvent
     return (
         <div className="w-full h-fit rounded-2xl border-3 border-dashed border-border">
             <label htmlFor="dropzone-file">
-                <div className="p-5 size-full cursor-pointer rounded-2xl flex flex-col items-center justify-center hover:bg-[]">
+                <div className="p-5 size-full cursor-pointer rounded-2xl flex flex-col items-center justify-center hover:bg-foreground/5">
                     <TbCloudUpload size={30}/>
                     <h1>Drag and drop your CSV here</h1>
                 </div>
