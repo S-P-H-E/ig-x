@@ -58,18 +58,19 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const user = await getUser();
 
-  const [result] = await db
-    .select({
-      workflow: workflows,
-      ownerEmail: userTable.email,
-    })
-    .from(workflows)
-    .leftJoin(userTable, eq(workflows.userId, userTable.id))
-    .where(eq(workflows.slug, slug));
-
   if (!result) {
     notFound();
   }
+
+  const workflowRecord = result.workflow;
+  const ownerEmail = result.ownerEmail;
+  
+  // Only allow owner to view workflow
+  if (workflowRecord.userId !== user.id) {
+    notFound(); // Or redirect with "Access denied" message
+  }
+  
+  const canEdit = workflowRecord.userId === user.id;
 
   const workflowRecord = result.workflow;
   const ownerEmail = result.ownerEmail;
